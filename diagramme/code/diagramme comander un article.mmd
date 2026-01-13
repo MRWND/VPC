@@ -1,0 +1,34 @@
+sequenceDiagram
+    participant C as Client
+    participant SW as Site Web
+    participant BDD as Base de données
+    participant Email as Serveur Email
+    
+    C->>SW: Consulter le catalogue
+    SW->>BDD: Récupérer articles
+    BDD-->>SW: Liste articles
+    SW-->>C: Afficher articles
+    
+    C->>SW: Sélectionner article
+    SW->>BDD: Récupérer détails article
+    BDD-->>SW: Détails + stock
+    SW-->>C: Vue détaillée
+    
+    C->>SW: Ajouter au panier
+    SW-->>C: Panier mis à jour
+    
+    C->>SW: Valider panier
+    SW-->>C: Demande identification
+    
+    C->>SW: S'identifier / Créer compte
+    SW->>BDD: Vérifier/Créer client
+    BDD-->>SW: Client validé
+    
+    C->>SW: Confirmer commande
+    SW->>BDD: Enregistrer commande
+    BDD-->>SW: Commande enregistrée
+    
+    SW->>Email: Envoyer confirmation
+    Email-->>C: Email de confirmation
+    
+    SW-->>C: Commande confirmée

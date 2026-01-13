@@ -1,0 +1,60 @@
+graph TB
+    subgraph Internet
+        CLI[Clients Web]
+    end
+    
+    subgraph "Pare-feu Stormshield SNS 320"
+        FW[Firewall]
+        NAT[NAT/PAT]
+        DHCP[Serveur DHCP]
+    end
+    
+    subgraph "DMZ - Zone Démilitarisée"
+        WEB[Serveur HTTP<br/>Apache]
+        BDD[Serveur BDD<br/>MySQL]
+    end
+    
+    subgraph "Réseau Interne"
+        SWITCH[Switch CISCO<br/>avec VLAN]
+        
+        subgraph VLAN1[VLAN Administration]
+            ADMIN[Poste Admin Réseau]
+            RESP[Poste Responsable]
+        end
+        
+        subgraph VLAN2[VLAN Production]
+            PREP[Poste Préparateur]
+            BAL[Balance Arduino]
+            LCB1[Lecteur Code Barre]
+            LCB2[Lecteur Code Barre]
+        end
+        
+        subgraph VLAN3[VLAN IoT]
+            LORA[Passerelle LORA]
+        end
+    end
+    
+    CLI -->|HTTPS:443| FW
+    FW -->|DMZ| WEB
+    FW -->|DMZ| BDD
+    WEB <-->|SQL| BDD
+    
+    FW --> SWITCH
+    SWITCH --> VLAN1
+    SWITCH --> VLAN2
+    SWITCH --> VLAN3
+    
+    RESP -->|FTP sécurisé| WEB
+    RESP -->|Internet autorisé| FW
+    PREP -->|Pas d'accès Internet| SWITCH
+    ADMIN -->|Configuration| FW
+    ADMIN -->|Configuration| SWITCH
+    
+    PREP <--> BAL
+    PREP <--> LCB1
+    RESP <--> LCB2
+    
+    style FW fill:#ff9999
+    style WEB fill:#99ccff
+    style BDD fill:#99ccff
+    style SWITCH fill:#ffcc99

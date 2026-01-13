@@ -1,0 +1,44 @@
+sequenceDiagram
+    participant P as Préparateur
+    participant IHM as Interface Préparateur
+    participant BDD as Base de données
+    participant LCB as Lecteur Code Barre
+    participant BAL as Balance Arduino
+    
+    P->>IHM: S'identifier
+    IHM->>BDD: Vérifier identité
+    BDD-->>IHM: Accès autorisé
+    
+    P->>IHM: Consulter commandes validées
+    IHM->>BDD: Récupérer commandes validées
+    BDD-->>IHM: Liste commandes
+    IHM-->>P: Afficher commandes
+    
+    P->>IHM: Sélectionner commande
+    IHM->>BDD: Récupérer détails commande
+    BDD-->>IHM: Articles à préparer
+    
+    loop Pour chaque article
+        P->>LCB: Scanner article
+        LCB-->>IHM: Code barre lu
+        IHM->>BDD: Vérifier article
+        BDD-->>IHM: Article validé
+        IHM-->>P: Article OK
+    end
+    
+    P->>BAL: Peser le colis
+    BAL-->>IHM: Poids du colis
+    IHM->>BDD: Calculer frais de port
+    BDD-->>IHM: Montant total
+    
+    P->>IHM: Éditer facture
+    IHM-->>P: Facture imprimée
+    
+    P->>IHM: Éditer étiquette
+    IHM-->>P: Étiquette imprimée
+    
+    P->>IHM: Finaliser commande
+    IHM->>BDD: Mettre à jour stock
+    IHM->>BDD: Marquer commande préparée
+    BDD-->>IHM: Confirmation
+    IHM-->>P: Commande finalisée

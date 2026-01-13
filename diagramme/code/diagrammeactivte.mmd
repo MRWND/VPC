@@ -1,0 +1,43 @@
+graph TD
+    Start([Début]) --> Login[Responsable s'identifie]
+    Login --> CheckAuth{Authentification<br/>réussie ?}
+    CheckAuth -->|Non| Login
+    CheckAuth -->|Oui| Menu[Accès zone gestion articles]
+    
+    Menu --> ChoixMode{Choix du mode}
+    
+    ChoixMode -->|Ajouter| ModeAjout[Mode Ajouter]
+    ModeAjout --> SaisieNew[Saisir référence, prix,<br/>photos, description]
+    SaisieNew --> ValidNew[Cliquer Valider]
+    ValidNew --> SaveNew[Sauvegarder dans BDD]
+    SaveNew --> Confirm1[Confirmation ajout]
+    Confirm1 --> Menu
+    
+    ChoixMode -->|Modifier| ModeModif[Mode Modifier]
+    ModeModif --> ChoixCat1[Choisir catégorie]
+    ChoixCat1 --> SelectArt1[Sélectionner article<br/>dans la liste]
+    SelectArt1 --> ModifChamps[Modifier les champs]
+    ModifChamps --> ValidModif[Cliquer Valider]
+    ValidModif --> SaveModif[Mettre à jour BDD]
+    SaveModif --> Confirm2[Confirmation modification]
+    Confirm2 --> Menu
+    
+    ChoixMode -->|Supprimer| ModeSupp[Mode Supprimer]
+    ModeSupp --> ChoixCat2[Choisir catégorie]
+    ChoixCat2 --> SelectArt2[Sélectionner article]
+    SelectArt2 --> BtnSupp[Cliquer Supprimer]
+    BtnSupp --> ConfirmSupp{Confirmer<br/>suppression ?}
+    ConfirmSupp -->|Non| Menu
+    ConfirmSupp -->|Oui| DeleteArt[Supprimer de BDD]
+    DeleteArt --> Confirm3[Confirmation suppression]
+    Confirm3 --> Menu
+    
+    Menu --> Quit{Quitter ?}
+    Quit -->|Non| Menu
+    Quit -->|Oui| End([Fin])
+    
+    style Start fill:#90EE90
+    style End fill:#FFB6C1
+    style CheckAuth fill:#FFE4B5
+    style ConfirmSupp fill:#FFE4B5
+    style Quit fill:#FFE4B5

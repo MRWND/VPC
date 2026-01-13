@@ -1,0 +1,101 @@
+classDiagram
+    class Client {
+        -int idClient
+        -string nom
+        -string prenom
+        -string adresse
+        -string telephone
+        -string email
+        -string motDePasse
+        +seConnecter()
+        +creerCompte()
+        +modifierInfos()
+    }
+    
+    class Article {
+        -int idArticle
+        -string reference
+        -string nom
+        -string description
+        -float prix
+        -string photo
+        -int stock
+        -string categorie
+        +ajouterArticle()
+        +modifierArticle()
+        +supprimerArticle()
+        +consulterStock()
+    }
+    
+    class Commande {
+        -int idCommande
+        -date dateCommande
+        -string statut
+        -float montantTotal
+        -float fraisPort
+        -float poidsColis
+        +creerCommande()
+        +validerCommande()
+        +preparerCommande()
+        +calculerMontant()
+    }
+    
+    class LigneCommande {
+        -int idLigne
+        -int quantite
+        -float prixUnitaire
+        +ajouterLigne()
+        +modifierQuantite()
+        +supprimerLigne()
+    }
+    
+    class Panier {
+        -int idPanier
+        -date dateCreation
+        +ajouterArticle()
+        +retirerArticle()
+        +viderPanier()
+        +validerPanier()
+    }
+    
+    class Responsable {
+        -int idResponsable
+        -string identifiant
+        -string motDePasse
+        +gererArticles()
+        +gererClients()
+        +validerCommandes()
+        +consulterHistorique()
+    }
+    
+    class Preparateur {
+        -int idPreparateur
+        -string identifiant
+        -string motDePasse
+        +preparerCommande()
+        +scannerArticle()
+        +peserColis()
+        +editerFacture()
+        +editerEtiquette()
+        +gererStock()
+    }
+    
+    class Stock {
+        -int quantiteDisponible
+        -int seuilAlerte
+        -date dateMiseAJour
+        +verifierStock()
+        +mettreAJourStock()
+        +declencherAlerte()
+    }
+    
+    Client "1" --> "*" Commande : passe
+    Client "1" --> "0..1" Panier : possède
+    Commande "1" --> "*" LigneCommande : contient
+    LigneCommande "*" --> "1" Article : référence
+    Article "1" --> "1" Stock : possède
+    Responsable --> Article : gère
+    Responsable --> Client : gère
+    Responsable --> Commande : valide
+    Preparateur --> Commande : prépare
+    Preparateur --> Stock : met à jour
