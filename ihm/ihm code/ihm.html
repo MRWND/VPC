@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IHM Préparateur - VPC</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Navbar latérale */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            background: rgba(0,0,0,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9em;
+            color: #bdc3c7;
+        }
+
+        .nav-menu {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            padding: 15px 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-left-color: #3498db;
+        }
+
+        .nav-item.active {
+            background: rgba(52, 152, 219, 0.2);
+            border-left-color: #3498db;
+        }
+
+        .nav-icon {
+            font-size: 1.2em;
+        }
+
+        .logout-btn {
+            margin: 20px;
+            padding: 12px;
+            background: #e74c3c;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .top-bar {
+            background: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .top-bar h1 {
+            color: #2c3e50;
+            font-size: 1.8em;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #3498db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .section {
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            font-size: 1.3em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        /* Table des commandes */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #ecf0f1;
+            padding: 12px;
+            text-align: left;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-validee {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-encours {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #229954;
+        }
+
+        /* Zone de préparation */
+        .preparation-zone {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .scan-zone {
+            background: #ecf0f1;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .scan-icon {
+            font-size: 4em;
+            color: #3498db;
+            margin-bottom: 15px;
+        }
+
+        .article-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .article-item {
+            background: white;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .article-item.scanned {
+            background: #d4edda;
+            border-left: 3px solid #27ae60;
+        }
+
+        .balance-display {
+            background: #2c3e50;
+            color: white;
+            padding: 40px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .weight-display {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #3498db;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        /* Formulaire stock */
+        .stock-form {
+            max-width: 600px;
+        }
+
+        .alert {
+            padding: 12px 20px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        /* Historique */
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar input, .filter-bar select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 0.95em;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>📦 VPC Préparateur</h2>
+            <p>Session 2026</p>
+        </div>
+        
+        <div class="nav-menu">
+            <div class="nav-item active" onclick="showSection('commandes')">
+                <span class="nav-icon">📋</span>
+                <span>Commandes validées</span>
+            </div>
+            <div class="nav-item" onclick="showSection('preparation')">
+                <span class="nav-icon">📦</span>
+                <span>Préparer commande</span>
+            </div>
+            <div class="nav-item" onclick="showSection('stock')">
+                <span class="nav-icon">📊</span>
+                <span>Gérer le stock</span>
+            </div>
+            <div class="nav-item" onclick="showSection('historique')">
+                <span class="nav-icon">📜</span>
+                <span>Historique</span>
+            </div>
+        </div>
+        
+        <button class="logout-btn" onclick="logout()">🚪 Déconnexion</button>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1 id="pageTitle">Commandes validées</h1>
+            <div class="user-info">
+                <div class="user-avatar">JP</div>
+                <div>
+                    <div style="font-weight: 600;">Jean Préparateur</div>
+                    <div style="font-size: 0.85em; color: #7f8c8d;">Préparateur</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Section: Commandes validées -->
+            <div id="commandes" class="section active">
+                <div class="card">
+                    <div class="card-header">📋 Liste des commandes à préparer</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Client</th>
+                                <th>Date</th>
+                                <th>Articles</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="commandesTable">
+                            <tr>
+                                <td><strong>#CMD-001</strong></td>
+                                <td>Martin Dupont</td>
+                                <td>15/01/2026</td>
+                                <td>3 articles</td>
+                                <td><span class="status-badge status-validee">Validée</span></td>
+                                <td><button class="btn btn-primary" onclick="preparerCommande('CMD-001')">Préparer</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#CMD-002</strong></td>
+                                <td>Sophie Bernard</td>
+                                <td>15/01/2026</td>
+                                <td>5 articles</td>
+                                <td><span class="status-badge status-validee">Validée</span></td>
+                                <td><button class="btn btn-primary" onclick="preparerCommande('CMD-002')">Préparer</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#CMD-003</strong></td>
+                                <td>Lucas Martin</td>
+                                <td>14/01/2026</td>
+                                <td>2 articles</td>
+                                <td><span class="status-badge status-encours">En cours</span></td>
+                                <td><button class="btn btn-success" onclick="preparerCommande('CMD-003')">Continuer</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Section: Préparation -->
+            <div id="preparation" class="section">
+                <div class="card">
+                    <div class="card-header">📦 Préparation de la commande #CMD-001</div>
+                    
+                    <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                        <strong>Client:</strong> Martin Dupont<br>
+                        <strong>Adresse:</strong> 12 Rue de la République, 83510 Lorgues
+                    </div>
+
+                    <div class="preparation-zone">
+                        <div>
+                            <div class="scan-zone">
+                                <div class="scan-icon">🔍</div>
+                                <h3>Scanner les articles</h3>
+                                <p style="color: #7f8c8d; margin-top: 10px;">Utilisez le lecteur de code-barre</p>
+                                <button class="btn btn-primary" style="margin-top: 15px;" onclick="simulerScan()">📷 Simuler scan</button>
+                            </div>
+
+                            <div class="article-list">
+                                <div class="article-item scanned">
+                                    <div>
+                                        <strong>Article #A001</strong><br>
+                                        <small>Quantité: 2</small>
+                                    </div>
+                                    <span style="color: #27ae60; font-size: 1.5em;">✓</span>
+                                </div>
+                                <div class="article-item scanned">
+                                    <div>
+                                        <strong>Article #A015</strong><br>
+                                        <small>Quantité: 1</small>
+                                    </div>
+                                    <span style="color: #27ae60; font-size: 1.5em;">✓</span>
+                                </div>
+                                <div class="article-item">
+                                    <div>
+                                        <strong>Article #A032</strong><br>
+                                        <small>Quantité: 1</small>
+                                    </div>
+                                    <span style="color: #e74c3c; font-size: 1.5em;">⏳</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="balance-display">
+                                <h3>⚖️ Balance connectée</h3>
+                                <div class="weight-display" id="weightDisplay">0.00 kg</div>
+                                <button class="btn btn-success" onclick="peserColis()" style="width: 100%;">Peser le colis</button>
+                                <div style="margin-top: 15px; font-size: 0.9em;">
+                                    Frais de port: <strong id="fraisPort">0.00 €</strong>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 20px;">
+                                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em; margin-bottom: 10px;" onclick="editerFacture()">🖨️ Éditer la facture</button>
+                                <button class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1em; margin-bottom: 10px;" onclick="editerEtiquette()">🏷️ Éditer l'étiquette</button>
+                                <button class="btn btn-success" style="width: 100%; padding: 15px; font-size: 1.1em;" onclick="finaliserCommande()">✅ Finaliser la commande</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Gestion du stock -->
+            <div id="stock" class="section">
+                <div class="card">
+                    <div class="card-header">📊 Mise à jour du stock</div>
+                    
+                    <div class="alert alert-warning">
+                        ⚠️ <strong>Alertes stock:</strong> 3 articles en dessous du seuil
+                    </div>
+
+                    <div class="stock-form">
+                        <div class="input-group">
+                            <label>Scanner l'article reçu</label>
+                            <input type="text" placeholder="Code-barre de l'article" id="scanStock">
+                        </div>
+
+                        <div class="input-group">
+                            <label>Référence article</label>
+                            <select id="articleStock">
+                                <option value="">-- Sélectionner --</option>
+                                <option value="A001">A001 - Article 1 (Stock: 5)</option>
+                                <option value="A015">A015 - Article 2 (Stock: 2) ⚠️</option>
+                                <option value="A032">A032 - Article 3 (Stock: 15)</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label>Quantité reçue</label>
+                            <input type="number" placeholder="Quantité" id="quantiteStock" min="1" value="1">
+                        </div>
+
+                        <button class="btn btn-success" style="width: 100%; padding: 12px;" onclick="mettreAJourStock()">✅ Mettre à jour le stock</button>
+                    </div>
+
+                    <div style="margin-top: 30px;">
+                        <h3 style="margin-bottom: 15px;">État du stock</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Référence</th>
+                                    <th>Nom</th>
+                                    <th>Stock actuel</th>
+                                    <th>Seuil alerte</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>A001</td>
+                                    <td>Article exemple 1</td>
+                                    <td>5</td>
+                                    <td>10</td>
+                                    <td><span class="status-badge status-validee">OK</span></td>
+                                </tr>
+                                <tr>
+                                    <td>A015</td>
+                                    <td>Article exemple 2</td>
+                                    <td>2</td>
+                                    <td>10</td>
+                                    <td><span class="status-badge" style="background: #f8d7da; color: #721c24;">Bas</span></td>
+                                </tr>
+                                <tr>
+                                    <td>A032</td>
+                                    <td>Article exemple 3</td>
+                                    <td>15</td>
+                                    <td>10</td>
+                                    <td><span class="status-badge status-validee">OK</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Historique -->
+            <div id="historique" class="section">
+                <div class="card">
+                    <div class="card-header">📜 Historique des commandes</div>
+                    
+                    <div class="filter-bar">
+                        <input type="date" placeholder="Date début">
+                        <input type="date" placeholder="Date fin">
+                        <input type="text" placeholder="Rechercher client...">
+                        <button class="btn btn-primary">🔍 Rechercher</button>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>N° Commande</th>
+                                <th>Client</th>
+                                <th>Date préparation</th>
+                                <th>Poids</th>
+                                <th>Frais port</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#CMD-098</strong></td>
+                                <td>Pierre Durand</td>
+                                <td>14/01/2026</td>
+                                <td>2.5 kg</td>
+                                <td>8.50 €</td>
+                                <td><button class="btn btn-primary">👁️ Détails</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#CMD-097</strong></td>
+                                <td>Marie Lefebvre</td>
+                                <td>13/01/2026</td>
+                                <td>1.2 kg</td>
+                                <td>5.90 €</td>
+                                <td><button class="btn btn-primary">👁️ Détails</button></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#CMD-096</strong></td>
+                                <td>Jean Michel</td>
+                                <td>13/01/2026</td>
+                                <td>3.8 kg</td>
+                                <td>12.00 €</td>
+                                <td><button class="btn btn-primary">👁️ Détails</button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gestion de la navigation
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(s => s.classList.remove('active'));
+            
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+            
+            const titles = {
+                'commandes': 'Commandes validées',
+                'preparation': 'Préparer une commande',
+                'stock': 'Gérer le stock',
+                'historique': 'Historique des commandes'
+            };
+            
+            document.getElementById('pageTitle').textContent = titles[sectionId];
+        }
+
+        // Préparer une commande
+        function preparerCommande(cmdId) {
+            showSection('preparation');
+            document.querySelector('.nav-item:nth-child(2)').classList.add('active');
+            alert('Préparation de la commande ' + cmdId);
+        }
+
+        // Simuler un scan
+        function simulerScan() {
+            alert('📷 Article scanné avec succès!\nCode-barre: 3700123456789');
+            const items = document.querySelectorAll('.article-item');
+            items.forEach((item, index) => {
+                if (!item.classList.contains('scanned') && index < 3) {
+                    setTimeout(() => {
+                        item.classList.add('scanned');
+                        const icon = item.querySelector('span');
+                        icon.textContent = '✓';
+                        icon.style.color = '#27ae60';
+                    }, 500);
+                }
+            });
+        }
+
+        // Peser le colis
+        function peserColis() {
+            const weight = (Math.random() * 5 + 0.5).toFixed(2);
+            document.getElementById('weightDisplay').textContent = weight + ' kg';
+            
+            const frais = (weight * 3.5).toFixed(2);
+            document.getElementById('fraisPort').textContent = frais + ' €';
+            
+            alert('⚖️ Colis pesé: ' + weight + ' kg\nFrais de port: ' + frais + ' €');
+        }
+
+        // Éditer la facture
+        function editerFacture() {
+            alert('🖨️ Facture en cours d\'impression...\n\nFacture #F-CMD-001\nClient: Martin Dupont\nMontant total: 89.90 €');
+        }
+
+        // Éditer l'étiquette
+        function editerEtiquette() {
+            alert('🏷️ Étiquette en cours d\'impression...\n\nDestinataire:\nMartin Dupont\n12 Rue de la République\n83510 Lorgues');
+        }
+
+        // Finaliser la commande
+        function finaliserCommande() {
+            if (confirm('✅ Êtes-vous sûr de vouloir finaliser cette commande?\n\nCela va:\n- Mettre à jour le stock\n- Marquer la commande comme préparée\n- Générer les documents')) {
+                alert('✅ Commande finalisée avec succès!\n\nLe stock a été mis à jour.\nLa commande est prête pour expédition.');
+                showSection('commandes');
+                document.querySelector('.nav-item:first-child').classList.add('active');
+            }
+        }
+
+        // Mettre à jour le stock
+        function mettreAJourStock() {
+            const article = document.getElementById('articleStock').value;
+            const quantite = document.getElementById('quantiteStock').value;
+            
+            if (!article) {
+                alert('⚠️ Veuillez sélectionner un article');
+                return;
+            }
+            
+            alert('✅ Stock mis à jour!\n\nArticle: ' + article + '\nQuantité ajoutée: ' + quantite);
+            
+            document.getElementById('scanStock').value = '';
+            document.getElementById('quantiteStock').value = 1;
+        }
+
+        // Déconnexion
+        function logout() {
+            if (confirm('🚪 Êtes-vous sûr de vouloir vous déconnecter?')) {
+                alert('Déconnexion réussie. À bientôt!');
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
